@@ -10,7 +10,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-Audio_Programming_Final_ProjectAudioProcessorEditor::Audio_Programming_Final_ProjectAudioProcessorEditor (Audio_Programming_Final_ProjectAudioProcessor& p)
+WavetableSynthAudioProcessorEditor::WavetableSynthAudioProcessorEditor (WavetableSynthAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
     // Make sure that before the constructor has finished, you've set the
@@ -18,22 +18,22 @@ Audio_Programming_Final_ProjectAudioProcessorEditor::Audio_Programming_Final_Pro
     setSize (400, 300);
 }
 
-Audio_Programming_Final_ProjectAudioProcessorEditor::~Audio_Programming_Final_ProjectAudioProcessorEditor()
+WavetableSynthAudioProcessorEditor::~WavetableSynthAudioProcessorEditor()
 {
 }
 
 //==============================================================================
-void Audio_Programming_Final_ProjectAudioProcessorEditor::paint (juce::Graphics& g)
+void WavetableSynthAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
 
     g.setColour (juce::Colours::white);
     g.setFont (15.0f);
-    g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+    g.drawFittedText ("Hello Wavetable Synth!", getLocalBounds(), juce::Justification::centred, 1);
 }
 
-void Audio_Programming_Final_ProjectAudioProcessorEditor::resized()
+void WavetableSynthAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..

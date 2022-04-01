@@ -9,16 +9,17 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "WavetableSynth.h"
 
 //==============================================================================
 /**
 */
-class Audio_Programming_Final_ProjectAudioProcessor  : public juce::AudioProcessor
+class WavetableSynthAudioProcessor  : public juce::AudioProcessor
 {
 public:
     //==============================================================================
-    Audio_Programming_Final_ProjectAudioProcessor();
-    ~Audio_Programming_Final_ProjectAudioProcessor() override;
+    WavetableSynthAudioProcessor();
+    ~WavetableSynthAudioProcessor() override;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -55,5 +56,6 @@ public:
 
 private:
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Audio_Programming_Final_ProjectAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(WavetableSynthAudioProcessor)
+    WavetableSynth synth;
 };
