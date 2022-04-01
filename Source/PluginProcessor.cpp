@@ -10,7 +10,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-Audio_Programming_Final_ProjectAudioProcessor::Audio_Programming_Final_ProjectAudioProcessor()
+WavetableSynthAudioProcessor::WavetableSynthAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
@@ -24,17 +24,17 @@ Audio_Programming_Final_ProjectAudioProcessor::Audio_Programming_Final_ProjectAu
 {
 }
 
-Audio_Programming_Final_ProjectAudioProcessor::~Audio_Programming_Final_ProjectAudioProcessor()
+WavetableSynthAudioProcessor::~WavetableSynthAudioProcessor()
 {
 }
 
 //==============================================================================
-const juce::String Audio_Programming_Final_ProjectAudioProcessor::getName() const
+const juce::String WavetableSynthAudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool Audio_Programming_Final_ProjectAudioProcessor::acceptsMidi() const
+bool WavetableSynthAudioProcessor::acceptsMidi() const
 {
    #if JucePlugin_WantsMidiInput
     return true;
@@ -43,7 +43,7 @@ bool Audio_Programming_Final_ProjectAudioProcessor::acceptsMidi() const
    #endif
 }
 
-bool Audio_Programming_Final_ProjectAudioProcessor::producesMidi() const
+bool WavetableSynthAudioProcessor::producesMidi() const
 {
    #if JucePlugin_ProducesMidiOutput
     return true;
@@ -52,7 +52,7 @@ bool Audio_Programming_Final_ProjectAudioProcessor::producesMidi() const
    #endif
 }
 
-bool Audio_Programming_Final_ProjectAudioProcessor::isMidiEffect() const
+bool WavetableSynthAudioProcessor::isMidiEffect() const
 {
    #if JucePlugin_IsMidiEffect
     return true;
@@ -61,50 +61,49 @@ bool Audio_Programming_Final_ProjectAudioProcessor::isMidiEffect() const
    #endif
 }
 
-double Audio_Programming_Final_ProjectAudioProcessor::getTailLengthSeconds() const
+double WavetableSynthAudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int Audio_Programming_Final_ProjectAudioProcessor::getNumPrograms()
+int WavetableSynthAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int Audio_Programming_Final_ProjectAudioProcessor::getCurrentProgram()
+int WavetableSynthAudioProcessor::getCurrentProgram()
 {
     return 0;
 }
 
-void Audio_Programming_Final_ProjectAudioProcessor::setCurrentProgram (int index)
+void WavetableSynthAudioProcessor::setCurrentProgram (int index)
 {
 }
 
-const juce::String Audio_Programming_Final_ProjectAudioProcessor::getProgramName (int index)
+const juce::String WavetableSynthAudioProcessor::getProgramName (int index)
 {
     return {};
 }
 
-void Audio_Programming_Final_ProjectAudioProcessor::changeProgramName (int index, const juce::String& newName)
+void WavetableSynthAudioProcessor::changeProgramName (int index, const juce::String& newName)
 {
 }
 
 //==============================================================================
-void Audio_Programming_Final_ProjectAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void WavetableSynthAudioProcessor::prepareToPlay (double sampleRate, int)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    synth.prepareToPlay(sampleRate);
 }
 
-void Audio_Programming_Final_ProjectAudioProcessor::releaseResources()
+void WavetableSynthAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool Audio_Programming_Final_ProjectAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool WavetableSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
   #if JucePlugin_IsMidiEffect
     juce::ignoreUnused (layouts);
@@ -112,8 +111,6 @@ bool Audio_Programming_Final_ProjectAudioProcessor::isBusesLayoutSupported (cons
   #else
     // This is the place where you check if the layout is supported.
     // In this template code we only support mono or stereo.
-    // Some plugin hosts, such as certain GarageBand versions, will only
-    // load plugins that support stereo bus layouts.
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
      && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
@@ -129,55 +126,36 @@ bool Audio_Programming_Final_ProjectAudioProcessor::isBusesLayoutSupported (cons
 }
 #endif
 
-void Audio_Programming_Final_ProjectAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void WavetableSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+    for (auto i = 0; i < buffer.getNumChannels(); ++i)
+        buffer.clear(i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
-    }
+    synth.processBlock(buffer, midiMessages);
 }
 
 //==============================================================================
-bool Audio_Programming_Final_ProjectAudioProcessor::hasEditor() const
+bool WavetableSynthAudioProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-juce::AudioProcessorEditor* Audio_Programming_Final_ProjectAudioProcessor::createEditor()
+juce::AudioProcessorEditor* WavetableSynthAudioProcessor::createEditor()
 {
-    return new Audio_Programming_Final_ProjectAudioProcessorEditor (*this);
+    return new WavetableSynthAudioProcessorEditor (*this);
 }
 
 //==============================================================================
-void Audio_Programming_Final_ProjectAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+void WavetableSynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
 }
 
-void Audio_Programming_Final_ProjectAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void WavetableSynthAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
@@ -187,5 +165,5 @@ void Audio_Programming_Final_ProjectAudioProcessor::setStateInformation (const v
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new Audio_Programming_Final_ProjectAudioProcessor();
+    return new WavetableSynthAudioProcessor();
 }
